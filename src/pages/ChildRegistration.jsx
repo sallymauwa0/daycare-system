@@ -5,11 +5,11 @@ import { COLORS, S } from "../constants";
 export default function ChildRegistration({ submitParentRequest, notify, user }) {
     const [form, setForm] = useState({ child_name: "", dob: "", gender: "Female", guardian: "", contact: "", email: "", allergies: "", notes: "" });
     const [done, setDone] = useState(false);
-    const submitting = useRef(false); // ← prevents double submission
+    const submitting = useRef(false);
 
     const submit = async () => {
         if (!form.child_name || !form.guardian || !form.contact) { notify("Please fill in the required fields (*)", COLORS.coral); return; }
-        if (submitting.current) return; // ← block if already submitting
+        if (submitting.current) return;
         submitting.current = true;
         await submitParentRequest({
             ...form,
@@ -23,6 +23,8 @@ export default function ChildRegistration({ submitParentRequest, notify, user })
         setDone(false);
         setForm({ child_name: "", dob: "", gender: "Female", guardian: "", contact: "", email: "", allergies: "", notes: "" });
     };
+
+    const today = new Date().toISOString().split("T")[0];
 
     return (
         <div style={{ maxWidth: 560, margin: "0 auto" }}>
@@ -43,15 +45,22 @@ export default function ChildRegistration({ submitParentRequest, notify, user })
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
                         {[
                             { label: "Child Full Name *", key: "child_name", placeholder: "e.g. Amara Njeri", col: "1/-1" },
-                            { label: "Date of Birth",     key: "dob",        type: "date", col: "" },
-                            { label: "Guardian Name *",   key: "guardian",   placeholder: "e.g. Grace Njeri", col: "" },
-                            { label: "Phone Number *",    key: "contact",    placeholder: "e.g. 0712345678", col: "" },
-                            { label: "Email Address",     key: "email",      placeholder: "e.g. grace@email.com", col: "" },
-                            { label: "Known Allergies",   key: "allergies",  placeholder: "e.g. Peanuts, or None", col: "" },
+                            { label: "Date of Birth", key: "dob", type: "date", col: "", max: today },
+                            { label: "Guardian Name *", key: "guardian", placeholder: "e.g. Grace Njeri", col: "" },
+                            { label: "Phone Number *", key: "contact", placeholder: "e.g. 0712345678", col: "" },
+                            { label: "Email Address", key: "email", placeholder: "e.g. grace@email.com", col: "" },
+                            { label: "Known Allergies", key: "allergies", placeholder: "e.g. Peanuts, or None", col: "" },
                         ].map(f => (
                             <div key={f.key} style={{ gridColumn: f.col || "auto" }}>
                                 <label style={{ fontSize: 12, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 4 }}>{f.label}</label>
-                                <input type={f.type || "text"} value={form[f.key]} onChange={e => setForm(p => ({ ...p, [f.key]: e.target.value }))} placeholder={f.placeholder || ""} style={S.input} />
+                                <input
+                                    type={f.type || "text"}
+                                    value={form[f.key]}
+                                    onChange={e => setForm(p => ({ ...p, [f.key]: e.target.value }))}
+                                    placeholder={f.placeholder || ""}
+                                    max={f.max || undefined}
+                                    style={S.input}
+                                />
                             </div>
                         ))}
                         <div style={{ gridColumn: "1/-1" }}>
